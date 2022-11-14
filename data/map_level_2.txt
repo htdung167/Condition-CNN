@@ -1,0 +1,95 @@
+11035649 0 Quần legging
+11035650 1 Quần dài
+11035653 2 Quần đùi
+11035654 3 Quần váy
+11035657 4 Quần jeans
+11035658 5 Đầm Váy
+11035659 6 Váy cưới
+11035660 7 Đồ liền thân
+11035666 8 Áo khoác mùa đông & Áo choàng
+11035667 9 Áo choàng Cape
+11035668 10 Áo blazer
+11035669 11 Áo khoác ngoài
+11035670 12 Áo vest
+11035672 13 Áo len & Cardigan
+11035674 14 Áo khoác nỉ
+11035675 15 Áo hoodies
+11035679 16 Đồ bộ gia đình
+11035680 17 Đồ lẻ
+11035683 18 Bộ đồ lót
+11035684 19 Áo ngực
+11035685 20 Quần lót
+11035686 21 Đồ lót giữ nhiệt
+11035687 22 Phụ kiện đồ lót
+11035688 23 Đồ định hình
+11035690 24 Đồ lót gợi cảm
+11035693 25 Pyjama
+11035694 26 Váy ngủ
+11035695 27 Áo choàng ngủ, Áo khoác kimono
+11035698 28 Áo ngực cho con bú
+11035699 29 Đầm bầu
+11035700 30 Áo bầu
+11035702 31 Bộ đồ bầu
+11035703 32 Quần bầu, Váy bầu
+11035706 33 Áo
+11035707 34 Quần và chân váy
+11035708 35 Bộ
+11035709 36 Đầm
+11035711 37 Đồ hóa trang
+11035727 38 Tất
+11035728 39 Quần tất
+11035569 40 Áo Khoác
+11035570 41 Áo Khoác Mùa Đông & Áo Choàng
+11035573 42 Áo Vest
+11035574 43 Áo Blazer
+11035575 44 Áo Ghi Lê
+11035576 45 Bộ Com Lê
+11035579 46 Áo Hoodie
+11035580 47 Áo Nỉ
+11035581 48 Áo Len
+11035583 49 Quần Jeans
+11035585 50 Quần Âu
+11035586 51 Quần Túi Hộp
+11035587 52 Quần Jogger
+11035588 53 Quần Dài
+11035591 54 Quần Đùi/Quần Short
+11035593 55 Áo Sơ Mi
+11035594 56 Áo Polo
+11035595 57 Áo Thun
+11035597 58 Áo Ba Lỗ
+11035599 59 Quần Lót
+11035600 60 Áo Lót
+11035601 61 Đồ Lót Giữ Nhiệt
+11035603 62 Đồ Ngủ
+11035604 63 Đồ Bộ
+11035605 64 Vớ/Tất
+11035607 65 Áo
+11035608 66 Quần
+11035609 67 Bộ
+11035611 68 Đồ Hóa Trang
+11035612 69 Trang Phục Ngành Nghề
+11035615 70 Nhẫn
+11035616 71 Bông tai
+11035617 72 Vòng tay & Lắc tay
+11035618 73 Lắc chân
+11035619 74 Dây chuyền
+11035621 75 Kính Mát
+11035622 76 Gọng Kính
+11035623 77 Hộp Kính Và Phụ Kiện
+11035625 78 Thắt Lưng Nam
+11035626 79 Cà vạt & Nơ cổ
+11035628 80 Trâm & Pin Cài Áo
+11035629 81 Miếng Vá Áo
+11035630 82 Mặt Dây Chuyền & Charm
+11035631 83 Măng Sét Nam
+11035632 84 Hình Xăm Dán
+11035633 85 Khẩu Trang Thời Trang
+11035634 86 Khăn Tay
+11035637 87 Găng tay
+11035638 88 Mũ
+11035641 89 Áo hai dây và ba lỗ
+11035642 90 Áo ống
+11035643 91 Áo thun
+11035644 92 Áo sơ mi
+11035645 93 Áo polo
+11035646 94 Áo liền thân
