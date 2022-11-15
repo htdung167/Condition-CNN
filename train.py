@@ -16,7 +16,6 @@ import wandb
 import tensorflow as tf
 from wandb.keras import WandbCallback
 wandb.init(project="ConditionCNN_15_11_2022", entity="thesis_uit_taidung")
-# f7be324d9a832a8c92e024e87fa2053565d95e62
 
 def get_flow_from_dataframe(g, dataframe,image_shape=(224, 224),batch_size=128):
     while True:
