@@ -85,7 +85,7 @@ def train_recurrent(
     val_datagen, val_df,
     x_column, y_column,
     TODAY):
-    model.load_weights(weights_path, by_name=True)
+    #model.load_weights(weights_path, by_name=True)
     train = train_datagen.flow_from_dataframe(
         dataframe=train_df,
         directory=direc,
@@ -207,7 +207,7 @@ def train_FineTuningDARTS(
     val_datagen, val_df,
     x_column, y_column,
     TODAY):
-    model.load_weights(weights_path, by_name=True)
+    #model.load_weights(weights_path, by_name=True)
     train_generator = train_datagen.flow_from_dataframe(
         dataframe=train_df,
         directory=direc,
@@ -276,47 +276,47 @@ def main(opt):
     test_df = pd.read_csv(csv_test)
 
     # Add column one hot
-    master_column_one_hot = master_column + "OneHot"
-    sub_column_one_hot = sub_column + "OneHot"
+    #master_column_one_hot = master_column + "OneHot"
+    #sub_column_one_hot = sub_column + "OneHot"
     article_column_one_hot = article_column + "OneHot"
 
-    if(model_type=='Recurrent' or model_type=='BCNN' or model_type=='Condition' or model_type=='ConditionPlus' or model_type=='ConditionB'):
+    if(model_type=='Recurrent' or model_type=='BCNN' or model_type=='Condition' or model_type=='ConditionPlus' or model_type=='ConditionB' or model_type=='FineTuningDARTS' ):
 
         # TODO: Map txt
-        # lblmapsub = {'Bags': 0, 'Belts': 1, 'Bottomwear': 2, 'Dress': 3, 'Eyewear': 4, 'Flip Flops': 5, 'Fragrance': 6, 'Headwear': 7, 'Innerwear': 8, 'Jewellery': 9, 'Lips': 10, 'Loungewear and Nightwear': 11, 'Nails': 12, 'Sandal': 13, 'Saree': 14, 'Shoes': 15, 'Socks': 16, 'Ties': 17, 'Topwear': 18, 'Wallets': 19, 'Watches': 20}
-        # lblmaparticle = {'Backpacks': 0, 'Belts': 1, 'Bra': 2, 'Briefs': 3, 'Capris': 4, 'Caps': 5, 'Casual Shoes': 6, 'Clutches': 7, 'Deodorant': 8, 'Dresses': 9, 'Earrings': 10, 'Flats': 11, 'Flip Flops': 12, 'Formal Shoes': 13, 'Handbags': 14, 'Heels': 15, 'Innerwear Vests': 16, 'Jackets': 17, 'Jeans': 18, 'Kurtas': 19, 'Kurtis': 20, 'Leggings': 21, 'Lipstick': 22, 'Nail Polish': 23, 'Necklace and Chains': 24, 'Nightdress': 25, 'Pendant': 26, 'Perfume and Body Mist': 27, 'Sandals': 28, 'Sarees': 29, 'Shirts': 30, 'Shorts': 31, 'Socks': 32, 'Sports Shoes': 33, 'Sunglasses': 34, 'Sweaters': 35, 'Sweatshirts': 36, 'Ties': 37, 'Tops': 38, 'Track Pants': 39, 'Trousers': 40, 'Tshirts': 41, 'Tunics': 42, 'Wallets': 43, 'Watches': 44}
-        # lblmapmaster = {'Accessories': 0, 'Apparel': 1, 'Footwear': 2, 'Personal Care': 3}
-        lblmapsub, _ = load_txt_to_dic("./data/map_level_1.txt")
-        lblmaparticle, _ = load_txt_to_dic("./data/map_level_2.txt")
-        lblmapmaster, _ = load_txt_to_dic("./data/map_level_0.txt")
+        lblmapsub = {'Bags': 0, 'Belts': 1, 'Bottomwear': 2, 'Dress': 3, 'Eyewear': 4, 'Flip Flops': 5, 'Fragrance': 6, 'Headwear': 7, 'Innerwear': 8, 'Jewellery': 9, 'Lips': 10, 'Loungewear and Nightwear': 11, 'Nails': 12, 'Sandal': 13, 'Saree': 14, 'Shoes': 15, 'Socks': 16, 'Ties': 17, 'Topwear': 18, 'Wallets': 19, 'Watches': 20}
+        lblmaparticle = {'Backpacks': 0, 'Belts': 1, 'Bra': 2, 'Briefs': 3, 'Capris': 4, 'Caps': 5, 'Casual Shoes': 6, 'Clutches': 7, 'Deodorant': 8, 'Dresses': 9, 'Earrings': 10, 'Flats': 11, 'Flip Flops': 12, 'Formal Shoes': 13, 'Handbags': 14, 'Heels': 15, 'Innerwear Vests': 16, 'Jackets': 17, 'Jeans': 18, 'Kurtas': 19, 'Kurtis': 20, 'Leggings': 21, 'Lipstick': 22, 'Nail Polish': 23, 'Necklace and Chains': 24, 'Nightdress': 25, 'Pendant': 26, 'Perfume and Body Mist': 27, 'Sandals': 28, 'Sarees': 29, 'Shirts': 30, 'Shorts': 31, 'Socks': 32, 'Sports Shoes': 33, 'Sunglasses': 34, 'Sweaters': 35, 'Sweatshirts': 36, 'Ties': 37, 'Tops': 38, 'Track Pants': 39, 'Trousers': 40, 'Tshirts': 41, 'Tunics': 42, 'Wallets': 43, 'Watches': 44}
+        lblmapmaster = {'Accessories': 0, 'Apparel': 1, 'Footwear': 2, 'Personal Care': 3}
+        #lblmapsub, _ = load_txt_to_dic("./data/map_level_1.txt")
+        #lblmaparticle, _ = load_txt_to_dic("./data/map_level_2.txt")
+        #lblmapmaster, _ = load_txt_to_dic("./data/map_level_0.txt")
 
         #Map classes
-        train_df[master_column].replace(lblmapmaster,inplace=True)
-        test_df[master_column].replace(lblmapmaster,inplace=True)
-        val_df[master_column].replace(lblmapmaster,inplace=True)
+        #train_df[master_column].replace(lblmapmaster,inplace=True)
+        #test_df[master_column].replace(lblmapmaster,inplace=True)
+        #val_df[master_column].replace(lblmapmaster,inplace=True)
 
-        train_df[sub_column].replace(lblmapsub,inplace=True)
-        test_df[sub_column].replace(lblmapsub,inplace=True)
-        val_df[sub_column].replace(lblmapsub,inplace=True)
+        #train_df[sub_column].replace(lblmapsub,inplace=True)
+        #test_df[sub_column].replace(lblmapsub,inplace=True)
+        #val_df[sub_column].replace(lblmapsub,inplace=True)
 
         train_df[article_column].replace(lblmaparticle,inplace=True)
         test_df[article_column].replace(lblmaparticle,inplace=True)
         val_df[article_column].replace(lblmaparticle,inplace=True)
 
         #Convert the 3 labels to one hots in train, test, val
-        onehot_master = to_categorical(train_df[master_column].values)
-        train_df[master_column_one_hot] = onehot_master.tolist()
-        onehot_master = to_categorical(val_df[master_column].values)
-        val_df[master_column_one_hot] = onehot_master.tolist()
-        onehot_master = to_categorical(test_df[master_column].values)
-        test_df[master_column_one_hot] = onehot_master.tolist()
+        # onehot_master = to_categorical(train_df[master_column].values)
+        # train_df[master_column_one_hot] = onehot_master.tolist()
+        # onehot_master = to_categorical(val_df[master_column].values)
+        # val_df[master_column_one_hot] = onehot_master.tolist()
+        # onehot_master = to_categorical(test_df[master_column].values)
+        # test_df[master_column_one_hot] = onehot_master.tolist()
 
-        onehot_master = to_categorical(train_df[sub_column].values)
-        train_df[sub_column_one_hot] = onehot_master.tolist()
-        onehot_master = to_categorical(val_df[sub_column].values)
-        val_df[sub_column_one_hot] = onehot_master.tolist()
-        onehot_master = to_categorical(test_df[sub_column].values)
-        test_df[sub_column_one_hot] = onehot_master.tolist()
+        # onehot_master = to_categorical(train_df[sub_column].values)
+        # train_df[sub_column_one_hot] = onehot_master.tolist()
+        # onehot_master = to_categorical(val_df[sub_column].values)
+        # val_df[sub_column_one_hot] = onehot_master.tolist()
+        # onehot_master = to_categorical(test_df[sub_column].values)
+        # test_df[sub_column_one_hot] = onehot_master.tolist()
 
         onehot_master = to_categorical(train_df[article_column].values)
         train_df[article_column_one_hot] = onehot_master.tolist()
@@ -328,11 +328,11 @@ def main(opt):
         raise NotImplementedError(f"Model type {model_type} is not supported.")
 
     #----------get VGG16 pre-trained weights--------
-    WEIGHTS_PATH = 'https://github.com/fchollet/deep-learning-models/releases/download/v0.1/vgg16_weights_tf_dim_ordering_tf_kernels.h5'
-    weights_path = get_file('vgg16_weights_tf_dim_ordering_tf_kernels.h5',
-                            WEIGHTS_PATH,
-                            cache_subdir='./weights')
-    
+    #WEIGHTS_PATH = 'https://github.com/fchollet/deep-learning-models/releases/download/v0.1/vgg16_weights_tf_dim_ordering_tf_kernels.h5'
+    # #weights_path = get_file('vgg16_weights_tf_dim_ordering_tf_kernels.h5',
+    #                         WEIGHTS_PATH,
+    #                         cache_subdir='./weights')
+    weights_path =""
     #-- Wandb Config
     wandb.config = {
         "learning_rate": 0.001,
@@ -396,7 +396,7 @@ def main(opt):
         cbks = condition.cbks
 
         #-- Add Wandb checkpoint
-        cbks = [*cbks, WandbCallback()]
+        #cbks = [*cbks, WandbCallback()]
         
         x_column = filepath_column
         y_column = [master_column_one_hot, sub_column_one_hot, article_column_one_hot]
@@ -514,7 +514,7 @@ def main(opt):
             TODAY
         )
     elif(model_type== 'FineTuningDARTS'):
-        from model.Fine_tunning_DARTS import FineTuningDARTSTrain:
+        from model.Fine_tunning_DARTS import FineTuningDARTSTrain
         FineTuningDARTS= FineTuningDARTSTrain(
             model_type,
             art_classes= art_classes,

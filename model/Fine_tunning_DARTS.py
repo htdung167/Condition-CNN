@@ -37,12 +37,12 @@ class FineTuningDARTSTrain:
 
         output_layer = layers.Dense(art_classes, activation="softmax", name="Output_Layer")(dense_1) 
 
-        model = tf.keras.Model(inputs=input_image, outputs=output_layer, name= "FineTuningDARTS")
+        model = tf.keras.Model(inputs=[input_image], outputs=[output_layer], name= "FineTuningDARTS")
         trainable_params= np.sum([K.count_params(w) for w in model.trainable_weights])
         print("Trainable paramaters: "+str(trainable_params))
 
         model.compile(loss=tf.keras.losses.CategoricalCrossentropy(),
-             optimizer=tf.keras.optimizers.Adam(learning_rate=1e-4),
+             optimizer=tf.keras.optimizers.Adam(learning_rate=0.001),
              metrics=["categorical_accuracy"])
                       
         checkpoint = ModelCheckpoint("./weights/"+label+"_best_weights.h5", monitor='val_loss', verbose=1,
