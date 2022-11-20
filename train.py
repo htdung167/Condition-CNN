@@ -21,7 +21,6 @@ def get_flow_from_dataframe(g, dataframe,image_shape=(224, 224),batch_size=128):
     while True:
         x_1 = g.next()
         yield [x_1[0], x_1[1][0], x_1[1][1]], x_1[1]
-
 def train_BCNN(
     label, model, cbks, weights_path, direc, 
     target_size, batch, epochs, 
@@ -201,6 +200,61 @@ def train_baseline(
     # Saving the weights in the current directory
     model.save_weights("./weights/"+label+"_"+str(epochs)+"_epochs_"+TODAY+".h5")
 
+def train_FineTuningDARTS(
+    label, model, cbks, weights_path, direc, 
+    target_size, batch, epochs, 
+    train_datagen, train_df,
+    val_datagen, val_df,
+    x_column, y_column,
+    TODAY):
+    model.load_weights(weights_path, by_name=True)
+    train_generator = train_datagen.flow_from_dataframe(
+        dataframe=train_df,
+        directory=direc,
+        # x_col="filepath",
+        x_col=x_column,
+        # y_col=['masterCategoryOneHot','subCategoryOneHot','articleTypeOneHot'],
+        y_col=y_column,
+        target_size=target_size,
+        batch_size=batch,
+        class_mode='multi_output')
+    val_generator = val_datagen.flow_from_dataframe(
+        dataframe=val_df,
+        directory=direc,
+        # x_col="filepath",
+        x_col=x_column,
+        # y_col=['masterCategoryOneHot','subCategoryOneHot','articleTypeOneHot'],
+        y_col=y_column,
+        target_size=target_size,
+        batch_size=batch,
+        class_mode='multi_output')
+    try:
+        STEP_SIZE_TRAIN = train_generator.n // train_generator.batch_size
+        STEP_SIZE_VALID = val_generator.n // val_generator.batch_size
+        history = model.fit_generator(train_generator,
+                            epochs=epochs,
+                            validation_data=val_generator,
+                            steps_per_epoch=STEP_SIZE_TRAIN,
+                            validation_steps=STEP_SIZE_VALID,
+                            callbacks=cbks)
+        print("Finished training")
+        #Save training as csv
+        pd.DataFrame.from_dict(history.history).to_csv("./history/"+label+"_"+str(epochs)+"_epochs_"+TODAY+'.csv',index=False)
+    
+        # plot loss
+        plt.plot(history.history['loss'])
+        plt.plot(history.history['val_loss'])
+        plt.title('model loss')
+        plt.ylabel('loss')
+        plt.xlabel('epoch')
+        plt.legend(['train', 'val'], loc='upper right')
+        plt.savefig("./plots/"+label+"_"+str(epochs)+"_epochs_"+TODAY+'_loss.png', bbox_inches='tight')
+        # plt.show()
+
+    except ValueError as v:
+        print(v)
+    # Saving the weights in the current directory
+    model.save_weights("./weights/"+label+"_"+str(epochs)+"_epochs_"+TODAY+".h5")
 def main(opt):
     model_type, epochs, batch, data_path, imgsz, csv_train, csv_val, csv_test, master_column, sub_column, article_column, filepath_column = \
         opt.model, opt.epochs, opt.batch, opt.data_path, opt.imgsz, opt.csv_train, opt.csv_val, opt.csv_test, opt.master_column, opt.sub_column, opt.article_column, opt.filepath_column
@@ -459,6 +513,30 @@ def main(opt):
             x_column, y_column,
             TODAY
         )
+    elif(model_type== 'FineTuningDARTS'):
+        from model.Fine_tunning_DARTS import FineTuningDARTSTrain:
+        FineTuningDARTS= FineTuningDARTSTrain(
+            model_type,
+            art_classes= art_classes,
+            input_image_shape= input_shape
+        )
+        model= FineTuningDARTS.model
+        cbks = FineTuningDARTS.cbks
+                #-- Add Wandb checkpoint
+        cbks = [*cbks, WandbCallback()]
+
+        x_column = filepath_column
+        y_column = [article_column_one_hot]
+        train_FineTuningDARTS(
+            model_type, model, cbks, weights_path, direc, 
+            target_size, batch, epochs, 
+            train_datagen, train_df,
+            val_datagen, val_df,
+            x_column, y_column,
+            TODAY
+        )
+
+
     else:
         #masterCategory
         from model.masterCategory import MasterCategory
@@ -482,9 +560,6 @@ def main(opt):
             TODAY
         )
         
-
-
-
 def parse_opt():
     parser = argparse.ArgumentParser()
     parser.add_argument('--model', type=str, default='Recurrent', help='Model type')
