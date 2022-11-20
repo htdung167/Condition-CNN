@@ -11,6 +11,11 @@ import os
 import argparse
 from utils.load_map import load_txt_to_dic
 
+#-- Import wandb
+import wandb
+import tensorflow as tf
+from wandb.keras import WandbCallback
+wandb.init(project="ConditionCNN_15_11_2022", entity="thesis_uit_taidung")
 
 def get_flow_from_dataframe(g, dataframe,image_shape=(224, 224),batch_size=128):
     while True:
@@ -274,6 +279,13 @@ def main(opt):
                             WEIGHTS_PATH,
                             cache_subdir='./weights')
     
+    #-- Wandb Config
+    wandb.config = {
+        "learning_rate": 0.001,
+        "epochs": epochs,
+        "batch_size": batch
+    }
+
     #----------globals---------
     direc = data_path
     target_size=(imgsz, imgsz)
@@ -328,6 +340,10 @@ def main(opt):
             )
         model = condition.model
         cbks = condition.cbks
+
+        #-- Add Wandb checkpoint
+        cbks = [*cbks, WandbCallback()]
+        
         x_column = filepath_column
         y_column = [master_column_one_hot, sub_column_one_hot, article_column_one_hot]
         train_recurrent(
