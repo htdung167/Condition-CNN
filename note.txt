@@ -1,0 +1,7 @@
+docker run -it --rm -v /mmlabstorage/K2019/tiendv/dungth/Condition-CNN/:/ConditionCNN/ --gpus all --name conditioncnn_v1 taidung_khoaluan_conditioncnn bash
+
+f7be324d9a832a8c92e024e87fa2053565d95e62
+
+ConditionCNN_Retrain_Kaggle_17_11_2022: khong doi ten 
+ConditionCNN_Retrain_Shopee_15_11_2022: khong doi ten
+ConditionCNN_Finetune_Shopee_19_11_2022: them duoi "_shopee"

@@ -1,7 +1,7 @@
 import tensorflow as tf
 from keras import layers
 from tensorflow.keras.layers import Dense, GlobalAveragePooling2D, MaxPooling2D, Flatten, Input, Conv2D, concatenate
-from tensorflow.keras.callbacks import Callback, ModelCheckpoint
+from tensorflow.keras.callbacks import Callback, ModelCheckpoint, ReduceLROnPlateau
 import tensorflow.keras.backend as K
 import numpy as np
 class FineTuningDARTSTrain:
@@ -42,12 +42,11 @@ class FineTuningDARTSTrain:
         print("Trainable paramaters: "+str(trainable_params))
 
         model.compile(loss=tf.keras.losses.CategoricalCrossentropy(),
-             optimizer=tf.keras.optimizers.Adam(learning_rate=0.001),
+             optimizer=tf.keras.optimizers.Adam(learning_rate=1e-3),
              metrics=["categorical_accuracy"])
                       
-        checkpoint = ModelCheckpoint("./weights/"+label+"_best_weights.h5", monitor='val_loss', verbose=1,
+        checkpoint = ModelCheckpoint("./weights/"+label+"_best_weights.h5", monitor='val_accuracy', verbose=1,
             save_best_only=True, save_weights_only=True,mode='auto')
-        self.cbks = [checkpoint]
+        checkpoin2 = ReduceLROnPlateau(monitor='val_loss', patience=5, verbose=1, factor=0.1, min_lr=0.000001)
+        self.cbks = [checkpoint,checkpoin2]
         self.model = model
-        
-

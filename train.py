@@ -16,11 +16,14 @@ import wandb
 import tensorflow as tf
 from wandb.keras import WandbCallback
 wandb.init(project="ConditionCNN_15_11_2022", entity="thesis_uit_taidung")
+# f7be324d9a832a8c92e024e87fa2053565d95e62
+
 
 def get_flow_from_dataframe(g, dataframe,image_shape=(224, 224),batch_size=128):
     while True:
         x_1 = g.next()
         yield [x_1[0], x_1[1][0], x_1[1][1]], x_1[1]
+
 def train_BCNN(
     label, model, cbks, weights_path, direc, 
     target_size, batch, epochs, 
@@ -85,7 +88,7 @@ def train_recurrent(
     val_datagen, val_df,
     x_column, y_column,
     TODAY):
-    #model.load_weights(weights_path, by_name=True)
+    model.load_weights(weights_path, by_name=True)
     train = train_datagen.flow_from_dataframe(
         dataframe=train_df,
         directory=direc,
@@ -199,7 +202,7 @@ def train_baseline(
 
     # Saving the weights in the current directory
     model.save_weights("./weights/"+label+"_"+str(epochs)+"_epochs_"+TODAY+".h5")
-
+    
 def train_FineTuningDARTS(
     label, model, cbks, weights_path, direc, 
     target_size, batch, epochs, 
@@ -255,6 +258,60 @@ def train_FineTuningDARTS(
         print(v)
     # Saving the weights in the current directory
     model.save_weights("./weights/"+label+"_"+str(epochs)+"_epochs_"+TODAY+".h5")
+def train_VGG16(
+    label, model, cbks, weights_path, direc, 
+    target_size, batch, epochs, 
+    train_datagen, train_df,
+    val_datagen, val_df,
+    x_column, y_column,
+    TODAY):
+    train_generator = train_datagen.flow_from_dataframe(
+        dataframe=train_df,
+        directory=direc,
+        # x_col="filepath",
+        x_col=x_column,
+        # y_col=['masterCategoryOneHot','subCategoryOneHot','articleTypeOneHot'],
+        y_col=y_column,
+        target_size=target_size,
+        batch_size=batch,
+        class_mode='multi_output')
+    val_generator = val_datagen.flow_from_dataframe(
+        dataframe=val_df,
+        directory=direc,
+        # x_col="filepath",
+        x_col=x_column,
+        # y_col=['masterCategoryOneHot','subCategoryOneHot','articleTypeOneHot'],
+        y_col=y_column,
+        target_size=target_size,
+        batch_size=batch,
+        class_mode='multi_output')
+    try:
+        STEP_SIZE_TRAIN = train_generator.n // train_generator.batch_size
+        STEP_SIZE_VALID = val_generator.n // val_generator.batch_size
+        history = model.fit_generator(train_generator,
+                            epochs=epochs,
+                            validation_data=val_generator,
+                            steps_per_epoch=STEP_SIZE_TRAIN,
+                            validation_steps=STEP_SIZE_VALID,
+                            callbacks=cbks)
+        print("Finished training")
+        #Save training as csv
+        pd.DataFrame.from_dict(history.history).to_csv("./history/"+label+"_"+str(epochs)+"_epochs_"+TODAY+'.csv',index=False)
+    
+        # plot loss
+        plt.plot(history.history['loss'])
+        plt.plot(history.history['val_loss'])
+        plt.title('model loss')
+        plt.ylabel('loss')
+        plt.xlabel('epoch')
+        plt.legend(['train', 'val'], loc='upper right')
+        plt.savefig("./plots/"+label+"_"+str(epochs)+"_epochs_"+TODAY+'_loss.png', bbox_inches='tight')
+        # plt.show()
+
+    except ValueError as v:
+        print(v)
+    # Saving the weights in the current directory
+    model.save_weights("./weights/"+label+"_"+str(epochs)+"_epochs_"+TODAY+".h5") 
 def main(opt):
     model_type, epochs, batch, data_path, imgsz, csv_train, csv_val, csv_test, master_column, sub_column, article_column, filepath_column = \
         opt.model, opt.epochs, opt.batch, opt.data_path, opt.imgsz, opt.csv_train, opt.csv_val, opt.csv_test, opt.master_column, opt.sub_column, opt.article_column, opt.filepath_column
@@ -276,47 +333,47 @@ def main(opt):
     test_df = pd.read_csv(csv_test)
 
     # Add column one hot
-    #master_column_one_hot = master_column + "OneHot"
-    #sub_column_one_hot = sub_column + "OneHot"
+    master_column_one_hot = master_column + "OneHot"
+    sub_column_one_hot = sub_column + "OneHot"
     article_column_one_hot = article_column + "OneHot"
 
-    if(model_type=='Recurrent' or model_type=='BCNN' or model_type=='Condition' or model_type=='ConditionPlus' or model_type=='ConditionB' or model_type=='FineTuningDARTS' ):
+    if(model_type=='Recurrent' or model_type=='BCNN' or model_type=='Condition' or model_type=='ConditionPlus' or model_type=='ConditionB' or model_type=="Condition_FinetuneFromOtherDataset" or model_type=='FineTuningDARTS' or model_type=='VGG16' ):
 
         # TODO: Map txt
         lblmapsub = {'Bags': 0, 'Belts': 1, 'Bottomwear': 2, 'Dress': 3, 'Eyewear': 4, 'Flip Flops': 5, 'Fragrance': 6, 'Headwear': 7, 'Innerwear': 8, 'Jewellery': 9, 'Lips': 10, 'Loungewear and Nightwear': 11, 'Nails': 12, 'Sandal': 13, 'Saree': 14, 'Shoes': 15, 'Socks': 16, 'Ties': 17, 'Topwear': 18, 'Wallets': 19, 'Watches': 20}
         lblmaparticle = {'Backpacks': 0, 'Belts': 1, 'Bra': 2, 'Briefs': 3, 'Capris': 4, 'Caps': 5, 'Casual Shoes': 6, 'Clutches': 7, 'Deodorant': 8, 'Dresses': 9, 'Earrings': 10, 'Flats': 11, 'Flip Flops': 12, 'Formal Shoes': 13, 'Handbags': 14, 'Heels': 15, 'Innerwear Vests': 16, 'Jackets': 17, 'Jeans': 18, 'Kurtas': 19, 'Kurtis': 20, 'Leggings': 21, 'Lipstick': 22, 'Nail Polish': 23, 'Necklace and Chains': 24, 'Nightdress': 25, 'Pendant': 26, 'Perfume and Body Mist': 27, 'Sandals': 28, 'Sarees': 29, 'Shirts': 30, 'Shorts': 31, 'Socks': 32, 'Sports Shoes': 33, 'Sunglasses': 34, 'Sweaters': 35, 'Sweatshirts': 36, 'Ties': 37, 'Tops': 38, 'Track Pants': 39, 'Trousers': 40, 'Tshirts': 41, 'Tunics': 42, 'Wallets': 43, 'Watches': 44}
         lblmapmaster = {'Accessories': 0, 'Apparel': 1, 'Footwear': 2, 'Personal Care': 3}
-        #lblmapsub, _ = load_txt_to_dic("./data/map_level_1.txt")
-        #lblmaparticle, _ = load_txt_to_dic("./data/map_level_2.txt")
-        #lblmapmaster, _ = load_txt_to_dic("./data/map_level_0.txt")
+#         lblmapsub, _ = load_txt_to_dic("./data/map_level_1.txt")
+#         lblmaparticle, _ = load_txt_to_dic("./data/map_level_2.txt")
+#         lblmapmaster, _ = load_txt_to_dic("./data/map_level_0.txt")
 
         #Map classes
-        #train_df[master_column].replace(lblmapmaster,inplace=True)
-        #test_df[master_column].replace(lblmapmaster,inplace=True)
-        #val_df[master_column].replace(lblmapmaster,inplace=True)
+        train_df[master_column].replace(lblmapmaster,inplace=True)
+        test_df[master_column].replace(lblmapmaster,inplace=True)
+        val_df[master_column].replace(lblmapmaster,inplace=True)
 
-        #train_df[sub_column].replace(lblmapsub,inplace=True)
-        #test_df[sub_column].replace(lblmapsub,inplace=True)
-        #val_df[sub_column].replace(lblmapsub,inplace=True)
+        train_df[sub_column].replace(lblmapsub,inplace=True)
+        test_df[sub_column].replace(lblmapsub,inplace=True)
+        val_df[sub_column].replace(lblmapsub,inplace=True)
 
         train_df[article_column].replace(lblmaparticle,inplace=True)
         test_df[article_column].replace(lblmaparticle,inplace=True)
         val_df[article_column].replace(lblmaparticle,inplace=True)
 
         #Convert the 3 labels to one hots in train, test, val
-        # onehot_master = to_categorical(train_df[master_column].values)
-        # train_df[master_column_one_hot] = onehot_master.tolist()
-        # onehot_master = to_categorical(val_df[master_column].values)
-        # val_df[master_column_one_hot] = onehot_master.tolist()
-        # onehot_master = to_categorical(test_df[master_column].values)
-        # test_df[master_column_one_hot] = onehot_master.tolist()
+        onehot_master = to_categorical(train_df[master_column].values)
+        train_df[master_column_one_hot] = onehot_master.tolist()
+        onehot_master = to_categorical(val_df[master_column].values)
+        val_df[master_column_one_hot] = onehot_master.tolist()
+        onehot_master = to_categorical(test_df[master_column].values)
+        test_df[master_column_one_hot] = onehot_master.tolist()
 
-        # onehot_master = to_categorical(train_df[sub_column].values)
-        # train_df[sub_column_one_hot] = onehot_master.tolist()
-        # onehot_master = to_categorical(val_df[sub_column].values)
-        # val_df[sub_column_one_hot] = onehot_master.tolist()
-        # onehot_master = to_categorical(test_df[sub_column].values)
-        # test_df[sub_column_one_hot] = onehot_master.tolist()
+        onehot_master = to_categorical(train_df[sub_column].values)
+        train_df[sub_column_one_hot] = onehot_master.tolist()
+        onehot_master = to_categorical(val_df[sub_column].values)
+        val_df[sub_column_one_hot] = onehot_master.tolist()
+        onehot_master = to_categorical(test_df[sub_column].values)
+        test_df[sub_column_one_hot] = onehot_master.tolist()
 
         onehot_master = to_categorical(train_df[article_column].values)
         train_df[article_column_one_hot] = onehot_master.tolist()
@@ -328,11 +385,14 @@ def main(opt):
         raise NotImplementedError(f"Model type {model_type} is not supported.")
 
     #----------get VGG16 pre-trained weights--------
-    #WEIGHTS_PATH = 'https://github.com/fchollet/deep-learning-models/releases/download/v0.1/vgg16_weights_tf_dim_ordering_tf_kernels.h5'
-    # #weights_path = get_file('vgg16_weights_tf_dim_ordering_tf_kernels.h5',
+    # WEIGHTS_PATH = 'https://github.com/fchollet/deep-learning-models/releases/download/v0.1/vgg16_weights_tf_dim_ordering_tf_kernels.h5'
+    # weights_path = get_file('vgg16_weights_tf_dim_ordering_tf_kernels.h5',
     #                         WEIGHTS_PATH,
     #                         cache_subdir='./weights')
-    weights_path =""
+
+    #--Fine-tuning weights path
+    #weights_path = "./weights_ConditionCNN_Retrain_Kaggle_17_11_2022/Condition_best_weights.h5"
+    weights_path=""
     #-- Wandb Config
     wandb.config = {
         "learning_rate": 0.001,
@@ -396,8 +456,33 @@ def main(opt):
         cbks = condition.cbks
 
         #-- Add Wandb checkpoint
-        #cbks = [*cbks, WandbCallback()]
-        
+        cbks = [*cbks, WandbCallback()]
+
+        x_column = filepath_column
+        y_column = [master_column_one_hot, sub_column_one_hot, article_column_one_hot]
+        train_recurrent(
+            model_type, model, cbks, weights_path, direc, 
+            target_size, batch, epochs, 
+            train_datagen, train_df,
+            val_datagen, val_df,
+            x_column, y_column,
+            TODAY
+        )
+    elif(model_type=='Condition_FinetuneFromOtherDataset'):
+        from model.ConditionCNN import ConditionTrain_FinetuneFromOtherDataset
+        condition = ConditionTrain_FinetuneFromOtherDataset(
+            model_type,
+            master_classes=master_classes, 
+            sub_classes=sub_classes, 
+            art_classes=art_classes, 
+            input_img_shape=input_shape
+            )
+        model = condition.model
+        cbks = condition.cbks
+
+        #-- Add Wandb checkpoint
+        cbks = [*cbks, WandbCallback(save_model=False)]
+
         x_column = filepath_column
         y_column = [master_column_one_hot, sub_column_one_hot, article_column_one_hot]
         train_recurrent(
@@ -523,7 +608,8 @@ def main(opt):
         model= FineTuningDARTS.model
         cbks = FineTuningDARTS.cbks
                 #-- Add Wandb checkpoint
-        cbks = [*cbks, WandbCallback()]
+        #cbks = [*cbks, WandbCallback()]
+        cbks = [*cbks, WandbCallback(save_model=False)]
 
         x_column = filepath_column
         y_column = [article_column_one_hot]
@@ -535,8 +621,27 @@ def main(opt):
             x_column, y_column,
             TODAY
         )
+    elif(model_type== "VGG16"):
+        from model.VGG16 import VGG16
+        vgg16 = VGG16(
+            model_type,
+            art_classes= art_classes,
+            input_image_shape=input_shape
+        )
+        model= vgg16.model
+        cbks = vgg16.cbks
+        cbks = [*cbks, WandbCallback(save_model=False)]
 
-
+        x_column = filepath_column
+        y_column = [article_column_one_hot]
+        train_VGG16(
+            model_type, model, cbks, weights_path, direc, 
+            target_size, batch, epochs, 
+            train_datagen, train_df,
+            val_datagen, val_df,
+            x_column, y_column,
+            TODAY
+        )
     else:
         #masterCategory
         from model.masterCategory import MasterCategory
@@ -559,7 +664,7 @@ def main(opt):
             x_column, y_column,
             TODAY
         )
-        
+
 def parse_opt():
     parser = argparse.ArgumentParser()
     parser.add_argument('--model', type=str, default='Recurrent', help='Model type')

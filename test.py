@@ -158,7 +158,7 @@ def main(opt):
     sub_column_one_hot = sub_column + "OneHot"
     article_column_one_hot = article_column + "OneHot"
 
-    if(model_type=='Recurrent' or model_type=='BCNN' or model_type=='Condition'or model_type=='ConditionPlus'or model_type=='ConditionB'):
+    if(model_type=='Recurrent' or model_type=='BCNN' or model_type=='Condition'or model_type=='ConditionPlus'or model_type=='ConditionB' or model_type=="Condition_FinetuneFromOtherDataset"):
 
         # lblmapsub = {'Bags': 0, 'Belts': 1, 'Bottomwear': 2, 'Dress': 3, 'Eyewear': 4, 'Flip Flops': 5, 'Fragrance': 6, 'Headwear': 7, 'Innerwear': 8, 'Jewellery': 9, 'Lips': 10, 'Loungewear and Nightwear': 11, 'Nails': 12, 'Sandal': 13, 'Saree': 14, 'Shoes': 15, 'Socks': 16, 'Ties': 17, 'Topwear': 18, 'Wallets': 19, 'Watches': 20}
         # lblmaparticle = {'Backpacks': 0, 'Belts': 1, 'Bra': 2, 'Briefs': 3, 'Capris': 4, 'Caps': 5, 'Casual Shoes': 6, 'Clutches': 7, 'Deodorant': 8, 'Dresses': 9, 'Earrings': 10, 'Flats': 11, 'Flip Flops': 12, 'Formal Shoes': 13, 'Handbags': 14, 'Heels': 15, 'Innerwear Vests': 16, 'Jackets': 17, 'Jeans': 18, 'Kurtas': 19, 'Kurtis': 20, 'Leggings': 21, 'Lipstick': 22, 'Nail Polish': 23, 'Necklace and Chains': 24, 'Nightdress': 25, 'Pendant': 26, 'Perfume and Body Mist': 27, 'Sandals': 28, 'Sarees': 29, 'Shirts': 30, 'Shorts': 31, 'Socks': 32, 'Sports Shoes': 33, 'Sunglasses': 34, 'Sweaters': 35, 'Sweatshirts': 36, 'Ties': 37, 'Tops': 38, 'Track Pants': 39, 'Trousers': 40, 'Tshirts': 41, 'Tunics': 42, 'Wallets': 43, 'Watches': 44}
@@ -232,6 +232,31 @@ def main(opt):
     elif(model_type == 'Condition'):
         from model.ConditionCNN import ConditionTest
         model = ConditionTest(
+            model_type,
+            master_classes=master_classes, 
+            sub_classes=sub_classes, 
+            art_classes=art_classes, 
+            input_img_shape=input_shape
+        ).model
+        x_column=filepath_column
+        y_column=[master_column_one_hot, sub_column_one_hot, article_column_one_hot]
+        # score = test_multi(model_type, model)
+        score = test_multi(
+            model_type, model, 
+            target_size, batch,
+            direc,
+            weights_path, 
+            x_column, y_column,
+            test_datagen, test_df
+        )
+
+        params= np.sum([K.count_params(w) for w in model.trainable_weights])
+        masterCategory_accuracy = score[4]
+        subCategory_accuracy = score[5]
+        articleType_accuracy = score[6]
+    elif(model_type == 'Condition_FinetuneFromOtherDataset'):
+        from model.ConditionCNN import ConditionTest_FinetuneFromOtherDataset
+        model = ConditionTest_FinetuneFromOtherDataset(
             model_type,
             master_classes=master_classes, 
             sub_classes=sub_classes, 
